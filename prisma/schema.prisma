@@ -19,16 +19,27 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
+  comments      Comment[]
 }
 
 model Post {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   title     String  
-  content   String?  @db.Text
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  comments  Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  authorId  Int
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
 }
 
 model Account {
