@@ -2,6 +2,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useRouter } from 'next/router'
+import styles from '@/styles/Home.module.css'
 
 export default function Component() {
   const router = useRouter();
@@ -14,12 +15,19 @@ export default function Component() {
   if (session) {
     return (
       <>
-        Successfully Signed in as {session.user.email} <br />
-        <img src={session.user.image} />
+      <main className={styles.main}>
+      <div className={styles.signin}>
+        Successfully Signed in as: <br/> {session.user.email}
+      </div>
+         <br />
+        <img className={styles.pfp} src={session.user.image} />
         <br />
-        {session.user.name} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-        <button onClick={handleClick}>Start Posting</button>
+        <div className={styles.signin}> {session.user.name} <br />
+          </div>
+        <button className={styles.signinbutton} onClick={() => signOut()}>Sign out</button>
+        <button className={styles.signinbutton1}  onClick={handleClick}>Continue to Site</button>
+      </main>
+      
 
       </>
     );

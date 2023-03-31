@@ -1,11 +1,56 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '@/styles/Home.module.css'
-import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 
 export default function Home() {
-  const router = useRouter();
+const [posts, setPosts] = useState([]);
+const [title, setTitle] = useState("");
+const [content, setContent] = useState("");
+
+useEffect(() => {
+  axios.get('/api/posts')
+  .then(response => {
+    setPosts(response.data);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+}, []);
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const newPost = {
+    title,
+    content
+  };
+  const res = await axios.post('/api/posts', newPost);
+  setPosts(prevPosts => [...prevPosts, res.data]); 
+    setTitle(""); 
+    setContent("");
+};
+
+useEffect(() => {
+  axios.get('/api/posts/(postid]/comments')
+  .then (response => {
+  setComment(response.data);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+}, []);
+
+  const handleComment = async (e, post, comment) => {
+    e.preventDefault();
+    const newComment = {
+      content: comment,
+    };
+    const res = await axios.post(`/api/posts/${post.id}/comments`, newComment);
+    console.log(res.data);
+  };
+  
   return (
     <>
       <Head>
@@ -14,11 +59,85 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div> MAKE A POST</div>
-        
+     
+      <main className={styles.main}> 
+      <Image className={styles.reel1} src='/reel1.png' width='244' height='1220'/>
+      <Image className={styles.reel2} src='/reel2.png' width='244' height='1220'/>
+      <Image className={styles.reel3} src='/reel1.png' width='244' height='1220'/>
+      <Image className={styles.reel4} src='/reel2.png' width='244' height='1220'/>
+      <div className={styles.title}> FLICKS</div>
+      <div className={styles.subtitle}> REVIEW YOUR FAVOURITE MOVIES</div>
        
+        
+        <form className={styles.formcont} onSubmit={handleSubmit}>
+        <label className={styles.formlabel}>
+            MOVIE TITLE
+            <br/>
+            <input className={styles.forminput} placeholder='Name of Movie' type="text" value={title} onChange={(e) => setTitle(e.target.value)}/>
+          </label>
+          <br/>
+          <label className={styles.formlabel}>
+            REVIEW
+            <br/>
+            <textarea className={styles.forminput1} placeholder='What did you think about the movie?' type="text" value={content} onChange={(e) => setContent(e.target.value)} />
+          </label>
+          <br/>
+          <button className={styles.formbutton} type='submit'> POST </button>
+        </form>
+       <div className={styles.subtitle1}> REVIEWS </div>
+       {posts.map(post => (
+         <PostComp key={post.id} post={post} handleComment={handleComment} />
+       ))}
       </main>
     </>
   )
+}
+
+function PostComp({post, handleComment}) {
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    axios.get(`/api/posts/${post.id}/comments`)
+    .then(response => {
+      setComments(response.data);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }, [post.id]);
+
+  return (
+    <div>
+      <div className={styles.postcont}>
+        <p className={styles.posttitle}>{post.title}</p>
+      <p className={styles.postcontent}>{post.content}</p>
+      </div>
+      <div className={styles.commentcont}>
+         <form onSubmit={(e) => {
+        e.preventDefault()
+        handleComment(e, post, comment)
+      }}>
+      
+        <label className={styles.comment}> Comment:
+        <br/>
+          <input className={styles.forminput} type='text' name='content' value={comment} onChange={(e) => setComment(e.target.value)}/>
+        </label>
+      
+        <button type='submit' className={styles.formbutton1}>POST</button>
+      </form>
+      </div>
+     
+      <ul>
+        {comments.map(comment => (
+          <li key={comment.id}>{comment.content}</li>
+        ))}
+      </ul>
+    </div>
+
+  );
+
+
+
+
 }

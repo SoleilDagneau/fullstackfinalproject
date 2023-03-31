@@ -1,5 +1,6 @@
 import '@/styles/globals.css'
 import '../styles/globals.css'
+import "../styles/fonts.css";
 
 import { SessionProvider } from "next-auth/react"
 
